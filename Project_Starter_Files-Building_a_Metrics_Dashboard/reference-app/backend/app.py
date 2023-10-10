@@ -1,7 +1,14 @@
-from flask import Flask, render_template, request, jsonify
-
+import logging
 import pymongo
+
+from jaeger_client import Config
+from flask import Flask, request, jsonify
+from flask_opentracing import FlaskTracing
 from flask_pymongo import PyMongo
+
+from os import getenv
+
+from prometheus_flask_exporter.multiprocess import GunicornInternalPrometheusMetrics
 
 app = Flask(__name__)
 
@@ -12,6 +19,29 @@ app.config[
 
 mongo = PyMongo(app)
 
+JAEGER_HOST = getenv('JAEGER_HOST', 'localhost')
+metrics = GunicornInternalPrometheusMetrics(app)
+metrics.info('app_info', 'Backend Service', version='1.0')
+
+def init_tracer(service):
+    logging.getLogger('').handlers = []
+    logging.basicConfig(format='%(message)s', level=logging.INFO)
+    config = Config(
+        config={
+            'sampler': {
+                'type': 'const',
+                'param': 1,
+            },
+            'logging': True,
+            'local_agent': {
+                'reporting_host': JAEGER_HOST
+            }
+        },
+        service_name=service,
+    )
+    return config.initialize_tracer()
+tracer = init_tracer('backend')
+tracing = FlaskTracing(tracer, True, app)
 
 @app.route("/")
 def homepage():
