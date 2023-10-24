@@ -26,7 +26,7 @@ spec:
           imagePullPolicy: Always
           env:
             - name: JAEGER_HOST
-              value: simplest-agent.observability.svc.cluster.local
+              value: simpletest-agent.observability.svc.cluster.local
           ports:
             - name: backendport
               containerPort: 8080

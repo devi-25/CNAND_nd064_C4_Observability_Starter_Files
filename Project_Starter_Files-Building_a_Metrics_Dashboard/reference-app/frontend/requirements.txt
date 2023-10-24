@@ -1,4 +1,4 @@
-Flask==2.2.2
+Flask>=2.2.2
 requests==2.23.0
 pylint==2.4.0
 gunicorn==20.0.4
@@ -7,3 +7,4 @@ Flask-OpenTracing==1.1.0
 prometheus-flask-exporter==0.20.3
 opentracing==2.4.0
 jaeger-client==4.3.0
+jinja2==3.0.3
